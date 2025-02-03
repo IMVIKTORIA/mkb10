@@ -1,0 +1,26 @@
+.list-wrapper {
+	display: flex;
+	padding: 12px;
+	align-items: start;
+
+	&__icons {
+		width: 16px;
+		height: 16px;
+		display: flex;
+		flex-direction: column;
+		cursor: pointer;
+
+		&_right {
+			display: flex;
+			width: 16px;
+			height: 8px;
+			transform: rotate(90deg);
+		}
+		&_down {
+			display: flex;
+			transform: rotate(180deg);
+			width: 16px;
+			height: 8px;
+		}
+	}
+}

@@ -1,0 +1,46 @@
+.disease-list {
+	display: flex;
+	flex-direction: column;
+	font-family: Inter;
+
+	&__info {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	&__code {
+		color: #4588e5;
+		line-height: 1.5;
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	&__name {
+		font-size: 16px;
+		color: #333;
+		font-weight: 700;
+		line-height: 1.5;
+	}
+
+	&__comment {
+		font-size: 14px;
+		margin-top: 4px;
+		overflow: hidden;
+
+		color: #666;
+	}
+	&__comment.collapsed {
+		max-height: 2.5rem;
+	}
+
+	&__comment.expanded {
+		max-height: 1000rem;
+	}
+
+	&__button {
+		font-size: 14px;
+		margin-top: 10px;
+		color: #9c9c9c;
+	}
+}
