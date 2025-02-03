@@ -9,6 +9,8 @@ export default function RecursionList(props: RecursionListProps) {
 	const [isSorted, setIsSorted] = useState(false)
 
 	const handleIconClick = () => {
+		if(!jsonData.children?.length) return;
+
 		setIsSorted((prevState) => !prevState)
 	}
 
@@ -20,22 +22,24 @@ export default function RecursionList(props: RecursionListProps) {
                     <div className="list-wrapper__icons_right">
                         {icons.SortArrow}
                     </div>
-                )*/}
+                )*/}~
+				{jsonData.children?.length &&
 				<div
 					className={`list-wrapper__icons_right ${isSorted ? 'list-wrapper__icons_down' : ''}`}
 					onClick={handleIconClick}
 				>
 					{icons.SortArrow}
-				</div>
+				</div>}
 
 				<DiseaseList code={jsonData.code} name={jsonData.fullname} comment={jsonData.comment} />
 			</div>
 			<div className="list-wrapper__children">
-				{/* TODO: Отображение дочерних элементов. Продумать флаг открытости/ закрытости списка 
+				{/* TODO: Отображение дочерних элементов. Продумать флаг открытости/ закрытости списка  */}
 				{
 					jsonData.children?.length &&
+					isSorted &&
 						jsonData.children.map((child: JsonDataType) => <RecursionList jsonData={child} />) // child - это структура jsonData
-				}*/}
+				}
 			</div>
 		</div>
 	)

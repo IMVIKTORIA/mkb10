@@ -1,5 +1,6 @@
 .list-wrapper {
 	display: flex;
+	flex-direction: column;
 	padding: 12px;
 	align-items: start;
 
@@ -7,7 +8,7 @@
 		width: 16px;
 		height: 16px;
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		cursor: pointer;
 
 		&_right {
@@ -22,5 +23,10 @@
 			width: 16px;
 			height: 8px;
 		}
+	}
+
+	&__data{
+		display: flex;
+    	align-items: center;
 	}
 }

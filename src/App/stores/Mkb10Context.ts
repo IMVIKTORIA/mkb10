@@ -39,4 +39,13 @@ export class Mkb10Data {
 	}
 }
 
-export const mkb10Context = initGlobalContext<Mkb10Data>(new Mkb10Data())
+export class Mkb10Context {
+	/** Данные МКБ-10 */
+	Mkb10: Mkb10Data
+
+	constructor() {
+		this.Mkb10 = new Mkb10Data();
+	}
+}
+
+export const mkb10Context = initGlobalContext<Mkb10Context>(new Mkb10Context())

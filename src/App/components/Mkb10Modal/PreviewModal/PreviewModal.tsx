@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { mkb10Context, Mkb10Data } from '../../../stores/Mkb10Context'
 import CustomInput from '../../../../UIKit/CustomInput/CustomInput'
 import Button from '../../../../UIKit/Button/Button'
@@ -15,11 +15,9 @@ export default function PreviewModal() {
 
 	// Инициализация
 	React.useLayoutEffect(() => {
-		const setMkbData = (MkbData: Mkb10Data) => {
-			setValue('Mkb10', MkbData)
-		}
-
-		Scripts.appendSetMkbDataCallback(setMkbData)
+		Scripts.getDiseaseList().then(list => {
+			setValue('Mkb10', list)
+		})
 	}, [])
 
 	const onClickCancel = async () => {
@@ -30,7 +28,10 @@ export default function PreviewModal() {
 		await Scripts.handleSelectClick()
 	}
 
-	console.log(data)
+	useEffect(() => {
+		console.log(data)
+	}, [data])
+	
 	return (
 		<div className="mkb10-modal">
 			<div className="mkb10-modal__header">
@@ -43,7 +44,7 @@ export default function PreviewModal() {
 					name="diseases"
 					cursor="text"
 				/>
-				<div className="mkb10-modal__disease">{data && <RecursionList jsonData={data} />}</div>
+				<div className="mkb10-modal__disease">{data && <RecursionList jsonData={data.Mkb10} />}</div>
 				{/* Кнопки */}
 				<div className="mkb10-modal__buttons">
 					<Button title={'Отменить'} buttonType={ButtonType.outline} clickHandler={onClickCancel} />
