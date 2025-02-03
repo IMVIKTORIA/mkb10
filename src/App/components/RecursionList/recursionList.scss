@@ -1,32 +1,33 @@
 .list-wrapper {
-	display: flex;
-	flex-direction: column;
-	padding: 12px;
-	align-items: start;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  align-items: start;
 
-	&__icons {
-		width: 16px;
-		height: 16px;
-		display: flex;
-		flex-direction: row;
-		cursor: pointer;
+  &__icons {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
 
-		&_right {
-			display: flex;
-			width: 16px;
-			height: 8px;
-			transform: rotate(90deg);
-		}
-		&_down {
-			display: flex;
-			transform: rotate(180deg);
-			width: 16px;
-			height: 8px;
-		}
-	}
+    &_right {
+      display: flex;
+      width: 16px;
+      height: 8px;
+      transform: rotate(90deg);
+      margin-top: 7px;
+    }
+    &_down {
+      display: flex;
+      transform: rotate(180deg);
+      width: 16px;
+      height: 8px;
+      margin-top: 7px;
+    }
+  }
 
-	&__data{
-		display: flex;
-    	align-items: center;
-	}
+  &__data {
+    display: flex;
+  }
 }

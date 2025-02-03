@@ -1,54 +1,54 @@
 {
-	"id": "123456789",
-	"parentID": null,
-	"code": "G35-G37",
-	"shortname": "G00-G99",
-	"fulltname": "Демиелинизирующие болезни центральной нервной системы",
-	"startDate": "23.08.2024",
-	"endDate": null,
-	"status": "действует",
-	"versionId": "",
-	"comment": "",
-	"children": [
-		{
-			"id": "1234567893",
-			"parentID": "123456789",
-			"code": "G35",
-			"shortname": "G35",
-			"fulltname": "Множественный склероз",
-			"startDate": "23.08.2024",
-			"endDate": null,
-			"status": "действует",
-			"versionId": "",
-			"comment": "",
-			"children": [
-				{
-					"id": "1234567896",
-					"parentID": "1234567893",
-					"code": "G35.0",
-					"shortname": "G35.0",
-					"fulltname": "Множественный склероз с острым началом",
-					"startDate": "23.08.2024",
-					"endDate": null,
-					"status": "действует",
-					"versionId": "",
-					"comment": "",
-					"children": [
-						{
-							"id": "1234567899",
-							"parentID": "1234567896",
-							"code": "G35.00",
-							"shortname": "G35.00",
-							"fulltname": "Множественный склероз с острым началом, неуточненный",
-							"startDate": "23.08.2024",
-							"endDate": null,
-							"status": "действует",
-							"versionId": "",
-							"comment": ""
-						}
-					]
-				}
-			]
-		}
-	]
+  "id": "123456789",
+  "parentID": null,
+  "code": "G35-G37",
+  "shortname": "G00-G99",
+  "fulltname": "Демиелинизирующие болезни центральной нервной системы",
+  "startDate": "23.08.2024",
+  "endDate": null,
+  "status": "действует",
+  "versionId": "",
+  "comment": "",
+  "children": [
+    {
+      "id": "1234567893",
+      "parentID": "123456789",
+      "code": "G35",
+      "shortname": "G35",
+      "fulltname": "Множественный склероз",
+      "startDate": "23.08.2024",
+      "endDate": null,
+      "status": "действует",
+      "versionId": "",
+      "comment": "",
+      "children": [
+        {
+          "id": "1234567896",
+          "parentID": "1234567893",
+          "code": "G35.0",
+          "shortname": "G35.0",
+          "fulltname": "Множественный склероз с острым началом",
+          "startDate": "23.08.2024",
+          "endDate": null,
+          "status": "действует",
+          "versionId": "",
+          "comment": "",
+          "children": [
+            {
+              "id": "1234567899",
+              "parentID": "1234567896",
+              "code": "G35.00",
+              "shortname": "G35.00",
+              "fulltname": "Множественный склероз с острым началом, неуточненный",
+              "startDate": "23.08.2024",
+              "endDate": null,
+              "status": "действует",
+              "versionId": "",
+              "comment": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
