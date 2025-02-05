@@ -1,4 +1,5 @@
 import { initGlobalContext } from "./GlobalContext";
+import { IFiltersData, StringFilter } from "../../UIKit/Filters/FiltersTypes";
 
 export class Mkb10Data {
   /**Идентификатор записи */
@@ -45,6 +46,39 @@ export class Mkb10Context {
 
   constructor() {
     this.Mkb10 = new Mkb10Data();
+  }
+}
+
+export class SelectMkb10Data {
+  /** Фильтры поиска */
+  filters: Mkb10DataFilters;
+  /** Обработчик нажатия на кнопку поиск */
+  onClickSearch: () => Promise<void>;
+  /** Идентификаторы выбранных элементов */
+  selectedItemsIds: string[];
+
+  constructor() {
+    this.filters = new Mkb10DataFilters();
+    this.onClickSearch = async () => {
+      alert("test");
+    };
+    this.selectedItemsIds = [];
+  }
+}
+export class Mkb10DataFilters implements IFiltersData {
+  /** Код */
+  code: StringFilter;
+  /** Полное наименование */
+  fullname: StringFilter;
+
+  constructor() {
+    this.code = new StringFilter("code", "код");
+    this.fullname = new StringFilter("fullname", "полное наименование");
+  }
+
+  reset() {
+    this.code.reset();
+    this.fullname.reset();
   }
 }
 

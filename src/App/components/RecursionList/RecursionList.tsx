@@ -3,6 +3,7 @@ import { RecursionListProps, JsonDataType } from "../../shared/types";
 import DiseaseList from "../DiseaseList/DiseaseList";
 import icons from "../../shared/icons";
 import CustomListSelector from "../../../UIKit/CustomList/CustomListSelector/CustomListSelector";
+import { findItemById } from "../../shared/utils/utils";
 
 export default function RecursionList(
   props: RecursionListProps & {
@@ -12,8 +13,8 @@ export default function RecursionList(
 ) {
   const {
     jsonData,
-    selectedContractorsIds,
-    setSelectedContractorsIds,
+    selectedItemsIds,
+    setSelectedItemsIds,
     depth = 0,
     onSelect,
   } = props;
@@ -28,104 +29,58 @@ export default function RecursionList(
 
   // Получение всех дочерних id у элемента
   const getAllChildIds = (node) => {
-    let ids = [node.id];
-    if (node.children) {
-      node.children.forEach((child) => {
-        ids = [...ids, ...getAllChildIds(child)];
-      });
-    }
-    return ids;
+    return node.children
+      ? [node.id, ...node.children.flatMap(getAllChildIds)]
+      : [node.id];
   };
 
-  const findNodeById = (node, id) => {
-    if (node.id === id) return node;
-    if (node.children) {
-      for (let child of node.children) {
-        const found = findNodeById(child, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  // Поиск родителя
-  const findParentNode = (node, id, parent = null) => {
-    if (node.id === id) return parent;
-    if (node.children) {
-      for (let child of node.children) {
-        const found = findParentNode(child, id, node);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-  //фильтр выбранных элементов
-  const filterCodes = (selectedIds: string[]): string[] => {
-    const filteredCodes = new Set<string>();
-
-    selectedIds.forEach((selectedId) => {
-      const selectedNode = findNodeById(props.jsonData, selectedId);
-      if (!selectedNode) return;
-
-      let hasParentSelected = false;
-      let parent = findParentNode(props.jsonData, selectedId);
-
-      while (parent) {
-        if (selectedIds.includes(parent.id)) {
-          hasParentSelected = true;
-          break;
-        }
-        parent = findParentNode(props.jsonData, parent.id);
-      }
-
-      if (!hasParentSelected) {
-        filteredCodes.add(selectedNode.code);
-      }
-    });
-
-    return Array.from(filteredCodes);
-  };
-
-  const handleSelectorClick = (id) => {
-    const isSelected = selectedContractorsIds.includes(id);
+  // Обработчик выбора элемента
+  const handleSelectorClick = (id: string) => {
     const allChildIds = getAllChildIds(jsonData);
-    setSelectedContractorsIds((prev) => {
-      let newSelectedIds;
-      if (isSelected) {
-        newSelectedIds = prev.filter(
-          (selectedId) => !allChildIds.includes(selectedId)
-        );
-      } else {
-        newSelectedIds = [...prev, ...allChildIds];
-      }
-      const filteredCodes: string[] = filterCodes(newSelectedIds);
+    const parentSelected = selectedItemsIds.includes(jsonData.id);
 
-      if (onSelect) {
-        onSelect(newSelectedIds, filteredCodes);
-        console.log("children", onSelect);
-      }
-      return newSelectedIds;
-    });
-  };
-  // Обновление состояния родителя в зависимости от состояния дочерних элементов
-  useEffect(() => {
-    if (jsonData.children && jsonData.children.length > 0) {
-      const allChildIds = getAllChildIds(jsonData);
-      const parentSelected = allChildIds.every((id) =>
-        selectedContractorsIds.includes(id)
+    let newSelectedItemsIds: string[];
+    if (parentSelected) {
+      newSelectedItemsIds = selectedItemsIds.filter(
+        (selectedId) => !allChildIds.includes(selectedId)
       );
-      if (parentSelected && !selectedContractorsIds.includes(jsonData.id)) {
-        setSelectedContractorsIds((prev) => [...prev, jsonData.id]);
-      } else if (
-        !parentSelected &&
-        selectedContractorsIds.includes(jsonData.id)
-      ) {
-        setSelectedContractorsIds((prev) =>
-          prev.filter((id) => id !== jsonData.id)
+    } else {
+      newSelectedItemsIds = [...selectedItemsIds, ...allChildIds, jsonData.id];
+    }
+    setSelectedItemsIds(newSelectedItemsIds);
+
+    const selectedCodes = newSelectedItemsIds
+      .map((id) => {
+        const selectedItem = findItemById(id, jsonData);
+        return selectedItem ? selectedItem.code : undefined;
+      })
+      .filter((code): code is string => code !== undefined)
+      .filter((value, index, self) => self.indexOf(value) === index);
+
+    const parentCodes = selectedCodes.filter((code) => {
+      const parentItem = findItemById(jsonData.id, jsonData);
+      return parentItem && parentItem.code === code;
+    });
+    onSelect?.(newSelectedItemsIds, parentCodes);
+  };
+
+  // Отслеживание состояний дочерних элементов
+  useEffect(() => {
+    if (jsonData.children) {
+      const allChildIds = jsonData.children.map((child) => child.id);
+      const allSelected =
+        allChildIds.length > 0 &&
+        allChildIds.every((childId) => selectedItemsIds.includes(childId));
+
+      if (allSelected && !selectedItemsIds.includes(jsonData.id)) {
+        setSelectedItemsIds((prev) => [...prev, jsonData.id]);
+      } else if (!allSelected && selectedItemsIds.includes(jsonData.id)) {
+        setSelectedItemsIds((prev) =>
+          prev.filter((selectedId) => selectedId !== jsonData.id)
         );
       }
     }
-  }, [selectedContractorsIds, jsonData.children]);
+  }, [selectedItemsIds, jsonData]);
 
   return (
     <div className="list-wrapper">
@@ -146,11 +101,10 @@ export default function RecursionList(
           )}
           <CustomListSelector
             onClickSelector={() => handleSelectorClick(jsonData.id)}
-            isChecked={selectedContractorsIds.includes(jsonData.id)}
+            isChecked={selectedItemsIds.includes(jsonData.id)}
             isMultiple={true}
           />
         </div>
-
         <DiseaseList
           code={jsonData.code}
           name={jsonData.fullname}
@@ -166,8 +120,8 @@ export default function RecursionList(
               <RecursionList
                 key={child.id}
                 jsonData={child}
-                selectedContractorsIds={selectedContractorsIds}
-                setSelectedContractorsIds={setSelectedContractorsIds}
+                selectedItemsIds={selectedItemsIds}
+                setSelectedItemsIds={setSelectedItemsIds}
                 depth={depth + 1}
                 onSelect={onSelect}
               />

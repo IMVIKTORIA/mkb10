@@ -5,15 +5,16 @@ import Button from "../../../../UIKit/Button/Button";
 import { ButtonType } from "../../../../UIKit/Button/ButtonTypes";
 import Scripts from "../../../shared/utils/clientScripts";
 import RecursionList from "../../RecursionList/RecursionList";
+import icons from "../../../shared/icons";
+import InputButton from "../../../../UIKit/InputButton/InputButton";
+import { findItemById } from "../../../shared/utils/utils";
 
 /** Модальное окно */
 export default function PreviewModal() {
   const { data, setValue } = mkb10Context.useContext();
   const [isFileLoading, setIsFileLoading] = useState<boolean>(false);
   const [customInputValue, setCustomInputValue] = useState<string>("");
-  const [selectedContractorsIds, setSelectedContractorsIds] = useState<
-    string[]
-  >([]);
+  const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
 
   // Инициализация
   React.useLayoutEffect(() => {
@@ -34,10 +35,31 @@ export default function PreviewModal() {
     console.log(data);
   }, [data]);
 
-  // Обновляем customInputValue, добавляя коды выбранных элементов через ;
-  const handleSelectChange = (selectedIds: string[], codes: string[]) => {
-    setCustomInputValue(codes.join("; "));
-    setSelectedContractorsIds(selectedIds);
+  //Поиск по фильтрам
+  const buttonSvg = icons.Search;
+  const onClickSearch = () => {};
+
+  // Функция обработки выбора элементов
+  const handleSelect = (selectedIds: string[], codes: string[]) => {
+    // Определяем коды удаленных элементов
+    const removedCodes = selectedItemsIds
+      .filter((id) => !selectedIds.includes(id))
+      .map((id) => findItemById(id, data.Mkb10)?.code)
+      .filter(Boolean);
+
+    setSelectedItemsIds(selectedIds);
+
+    setCustomInputValue((prevValue) => {
+      const newCodes = codes.join("; ");
+      const newValue = prevValue
+        .split("; ")
+        .filter((code) => !removedCodes.includes(code))
+        .concat(newCodes)
+        .filter(Boolean)
+        .join("; ");
+
+      return newValue;
+    });
   };
 
   return (
@@ -54,14 +76,15 @@ export default function PreviewModal() {
           setValue={setCustomInputValue}
           name="diseases"
           cursor="text"
+          buttons={<InputButton svg={buttonSvg} clickHandler={onClickSearch} />}
         />
         <div className="mkb10-modal__disease">
           {data && (
             <RecursionList
               jsonData={data.Mkb10}
-              selectedContractorsIds={selectedContractorsIds}
-              setSelectedContractorsIds={setSelectedContractorsIds}
-              onSelect={handleSelectChange}
+              selectedItemsIds={selectedItemsIds}
+              setSelectedItemsIds={setSelectedItemsIds}
+              onSelect={handleSelect}
             />
           )}
         </div>
@@ -72,7 +95,7 @@ export default function PreviewModal() {
             buttonType={ButtonType.outline}
             clickHandler={onClickCancel}
           />
-          {!isFileLoading && selectedContractorsIds.length > 0 && (
+          {!isFileLoading && selectedItemsIds.length > 0 && (
             <Button title={"Выбрать"} clickHandler={onClickSelect} />
           )}
         </div>

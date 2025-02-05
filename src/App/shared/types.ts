@@ -31,6 +31,6 @@ export interface JsonDataType {
 
 export type RecursionListProps = {
   jsonData: JsonDataType;
-  selectedContractorsIds: string[];
-  setSelectedContractorsIds: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedItemsIds: string[];
+  setSelectedItemsIds: React.Dispatch<React.SetStateAction<string[]>>;
 };
