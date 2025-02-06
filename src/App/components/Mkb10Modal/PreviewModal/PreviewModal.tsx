@@ -36,12 +36,10 @@ export default function PreviewModal() {
   }, [data]);
 
   //Поиск по фильтрам
-  const buttonSvg = icons.Search;
   const onClickSearch = () => {};
 
   // Функция обработки выбора элементов
   const handleSelect = (selectedIds: string[], codes: string[]) => {
-    // Определяем коды удаленных элементов
     const removedCodes = selectedItemsIds
       .filter((id) => !selectedIds.includes(id))
       .map((id) => findItemById(id, data.Mkb10)?.code)
@@ -76,7 +74,9 @@ export default function PreviewModal() {
           setValue={setCustomInputValue}
           name="diseases"
           cursor="text"
-          buttons={<InputButton svg={buttonSvg} clickHandler={onClickSearch} />}
+          buttons={
+            <InputButton svg={icons.Search} clickHandler={onClickSearch} />
+          }
         />
         <div className="mkb10-modal__disease">
           {data && (

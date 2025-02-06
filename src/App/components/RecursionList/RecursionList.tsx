@@ -42,10 +42,14 @@ export default function RecursionList(
     let newSelectedItemsIds: string[];
     if (parentSelected) {
       newSelectedItemsIds = selectedItemsIds.filter(
-        (selectedId) => !allChildIds.includes(selectedId)
+        (selectedId) =>
+          !allChildIds.includes(selectedId) && selectedId !== jsonData.id
       );
     } else {
-      newSelectedItemsIds = [...selectedItemsIds, ...allChildIds, jsonData.id];
+      // Исключаем дубликаты перед добавлением
+      newSelectedItemsIds = Array.from(
+        new Set([...selectedItemsIds, ...allChildIds, jsonData.id])
+      );
     }
     setSelectedItemsIds(newSelectedItemsIds);
 
