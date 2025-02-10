@@ -3,7 +3,6 @@ import { RecursionListProps, JsonDataType } from "../../shared/types";
 import DiseaseList from "../DiseaseList/DiseaseList";
 import icons from "../../shared/icons";
 import CustomListSelector from "../../../UIKit/CustomList/CustomListSelector/CustomListSelector";
-import { findItemById } from "../../shared/utils/utils";
 
 export default function RecursionList(
   props: RecursionListProps & {
@@ -27,61 +26,92 @@ export default function RecursionList(
     setIsSorted((prevState) => !prevState);
   };
 
-  // Получение всех дочерних id у элемента
+  // Получение всех дочерних id у элемента, включая вложенные
   const getAllChildIds = (node) => {
-    return node.children
-      ? [node.id, ...node.children.flatMap(getAllChildIds)]
-      : [node.id];
+    if (!node || !node.children) {
+      return [];
+    }
+    return node.children.flatMap((child) => [
+      child.id,
+      ...getAllChildIds(child),
+    ]);
   };
 
-  // Обработчик выбора элемента
-  const handleSelectorClick = (id: string) => {
-    const allChildIds = getAllChildIds(jsonData);
-    const parentSelected = selectedItemsIds.includes(jsonData.id);
+  //Получение всех кодов выбранных элементов
+  const getAllSelectedCodes = (selectedIds, jsonData) => {
+    const selectedCodes: string[] = [];
+    const traverse = (node) => {
+      if (selectedIds.includes(node.id)) {
+        selectedCodes.push(node.code);
+      }
+      if (node.children) {
+        node.children.forEach(traverse);
+      }
+    };
+    traverse(jsonData);
+    return selectedCodes;
+  };
 
-    let newSelectedItemsIds: string[];
+  // Обработка клика при выборе элемента
+  const handleSelectorClick = (id) => {
+    const allChildIds = getAllChildIds(jsonData);
+    const parentSelected = selectedItemsIds.includes(id);
+    let updatedSelectedItemsIds;
+
     if (parentSelected) {
-      newSelectedItemsIds = selectedItemsIds.filter(
-        (selectedId) =>
-          !allChildIds.includes(selectedId) && selectedId !== jsonData.id
+      updatedSelectedItemsIds = selectedItemsIds.filter(
+        (selectedId) => !allChildIds.includes(selectedId) && selectedId !== id
       );
     } else {
-      // Исключаем дубликаты перед добавлением
-      newSelectedItemsIds = Array.from(
-        new Set([...selectedItemsIds, ...allChildIds, jsonData.id])
-      );
+      updatedSelectedItemsIds = [
+        ...selectedItemsIds,
+        ...allChildIds.filter((childId) => !selectedItemsIds.includes(childId)),
+        id,
+      ];
     }
-    setSelectedItemsIds(newSelectedItemsIds);
+    setSelectedItemsIds(updatedSelectedItemsIds);
 
-    const selectedCodes = newSelectedItemsIds
-      .map((id) => {
-        const selectedItem = findItemById(id, jsonData);
-        return selectedItem ? selectedItem.code : undefined;
-      })
-      .filter((code): code is string => code !== undefined)
-      .filter((value, index, self) => self.indexOf(value) === index);
-
-    const parentCodes = selectedCodes.filter((code) => {
-      const parentItem = findItemById(jsonData.id, jsonData);
-      return parentItem && parentItem.code === code;
-    });
-    onSelect?.(newSelectedItemsIds, parentCodes);
+    // Собираем коды выбранных элементов
+    const selectedCodes = getAllSelectedCodes(
+      updatedSelectedItemsIds,
+      jsonData
+    );
+    if (onSelect) {
+      onSelect(updatedSelectedItemsIds, selectedCodes);
+    }
   };
 
   // Отслеживание состояний дочерних элементов
   useEffect(() => {
     if (jsonData.children) {
-      const allChildIds = jsonData.children.map((child) => child.id);
+      const allChildIds = getAllChildIds(jsonData);
       const allSelected =
         allChildIds.length > 0 &&
         allChildIds.every((childId) => selectedItemsIds.includes(childId));
 
-      if (allSelected && !selectedItemsIds.includes(jsonData.id)) {
-        setSelectedItemsIds((prev) => [...prev, jsonData.id]);
-      } else if (!allSelected && selectedItemsIds.includes(jsonData.id)) {
-        setSelectedItemsIds((prev) =>
-          prev.filter((selectedId) => selectedId !== jsonData.id)
+      let updatedSelectedItemsIds;
+
+      // Если хотя бы один дочерний элемент не выбран, удаляем родителя
+      if (!allSelected && selectedItemsIds.includes(jsonData.id)) {
+        updatedSelectedItemsIds = selectedItemsIds.filter(
+          (selectedId) => selectedId !== jsonData.id
         );
+      }
+      // Если все дочерние элементы выбраны, добавляем родителя
+      else if (allSelected && !selectedItemsIds.includes(jsonData.id)) {
+        updatedSelectedItemsIds = [...selectedItemsIds, jsonData.id];
+      }
+
+      if (updatedSelectedItemsIds) {
+        setSelectedItemsIds(updatedSelectedItemsIds);
+
+        const selectedCodes = getAllSelectedCodes(
+          updatedSelectedItemsIds,
+          jsonData
+        );
+        if (onSelect) {
+          onSelect(updatedSelectedItemsIds, selectedCodes);
+        }
       }
     }
   }, [selectedItemsIds, jsonData]);

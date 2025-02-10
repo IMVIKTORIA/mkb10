@@ -15,6 +15,7 @@ export default function PreviewModal() {
   const [isFileLoading, setIsFileLoading] = useState<boolean>(false);
   const [customInputValue, setCustomInputValue] = useState<string>("");
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
+  const [diseasesListValue, setDiseasesListValue] = useState<string>("");
 
   // Инициализация
   React.useLayoutEffect(() => {
@@ -38,8 +39,8 @@ export default function PreviewModal() {
   //Поиск по фильтрам
   const onClickSearch = () => {};
 
-  // Функция обработки выбора элементов
-  const handleSelect = (selectedIds: string[], codes: string[]) => {
+  // Обновление значения в CustomInput
+  const handleSelectChange = (selectedIds: string[], codes: string[]) => {
     const removedCodes = selectedItemsIds
       .filter((id) => !selectedIds.includes(id))
       .map((id) => findItemById(id, data.Mkb10)?.code)
@@ -47,16 +48,18 @@ export default function PreviewModal() {
 
     setSelectedItemsIds(selectedIds);
 
-    setCustomInputValue((prevValue) => {
-      const newCodes = codes.join("; ");
-      const newValue = prevValue
-        .split("; ")
-        .filter((code) => !removedCodes.includes(code))
-        .concat(newCodes)
-        .filter(Boolean)
-        .join("; ");
+    setDiseasesListValue((prevValue) => {
+      const existingCodes = new Set(prevValue.split("; ").filter(Boolean));
+      const newCodes = codes.filter((code) => !existingCodes.has(code));
 
-      return newValue;
+      const updatedValue = [
+        ...Array.from(existingCodes).filter(
+          (code) => !removedCodes.includes(code)
+        ),
+        ...newCodes,
+      ].join("; ");
+
+      return updatedValue;
     });
   };
 
@@ -78,13 +81,20 @@ export default function PreviewModal() {
             <InputButton svg={icons.Search} clickHandler={onClickSearch} />
           }
         />
+        <CustomInput
+          value={diseasesListValue}
+          setValue={setDiseasesListValue}
+          name="diseasesList"
+          cursor="text"
+          readOnly
+        />
         <div className="mkb10-modal__disease">
           {data && (
             <RecursionList
               jsonData={data.Mkb10}
               selectedItemsIds={selectedItemsIds}
               setSelectedItemsIds={setSelectedItemsIds}
-              onSelect={handleSelect}
+              onSelect={handleSelectChange}
             />
           )}
         </div>
