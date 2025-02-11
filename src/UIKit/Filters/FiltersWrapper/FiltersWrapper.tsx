@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, useEffect, useRef } from 'react'
 import Button from '../../Button/Button'
 import { ButtonType } from '../../Button/ButtonTypes'
 
@@ -10,6 +10,22 @@ interface FiltersWrapperProps {
 
 /** Обертка панели фильтров */
 export default function FiltersWrapper({ searchHandler, resetHandler, children, isSearchButtonDisabled }: PropsWithChildren<FiltersWrapperProps>) {
+	// Обработчик нажатия на enter
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Enter" && searchHandler) searchHandler()
+			removeListener()
+		};
+		
+		const removeListener = () => {
+			document.removeEventListener("keydown", handleKeyDown)
+		}
+
+		document.addEventListener("keydown", handleKeyDown);
+		
+		return () => removeListener()
+	}, [searchHandler]);
+	
 
 	return (
 		<div className="filters-wrapper">

@@ -109,20 +109,6 @@ async function getDiseaseList(): Promise<Mkb10Data> {
         status: "действует",
         versionId: "",
         comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        children: [
-          {
-            id: "1234567801",
-            parentID: "1234567800",
-            code: "G36.0",
-            shortname: "G36.0",
-            fullname: "Эпилепсия",
-            startDate: mockDate,
-            endDate: null,
-            status: "действует",
-            versionId: "",
-            comment: "Lorem ipsum dolor sit amet",
-          },
-        ],
       },
       {
         id: "1234567810",
@@ -135,20 +121,6 @@ async function getDiseaseList(): Promise<Mkb10Data> {
         status: "действует",
         versionId: "",
         comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        children: [
-          {
-            id: "1234567803",
-            parentID: "1234567810",
-            code: "G37.0",
-            shortname: "G37.0",
-            fullname: "Холера",
-            startDate: mockDate,
-            endDate: null,
-            status: "действует",
-            versionId: "",
-            comment: "Lorem ipsum dolor sit amet",
-          },
-        ],
       },
     ],
   };

@@ -41,41 +41,38 @@ export class Mkb10Data {
 }
 
 export class Mkb10Context {
-  /** Данные МКБ-10 */
-  Mkb10: Mkb10Data;
-
-  constructor() {
-    this.Mkb10 = new Mkb10Data();
-  }
-}
-
-export class SelectMkb10Data {
   /** Фильтры поиска */
   filters: Mkb10DataFilters;
+  /** Данные МКБ-10 */
+  Mkb10: Mkb10Data;
   /** Обработчик нажатия на кнопку поиск */
   onClickSearch: () => Promise<void>;
-  /** Идентификаторы выбранных элементов */
   selectedItemsIds: string[];
 
   constructor() {
     this.filters = new Mkb10DataFilters();
+    this.Mkb10 = new Mkb10Data();
     this.onClickSearch = async () => {
-      alert("test");
+      console.log("onClickSearch");
     };
     this.selectedItemsIds = [];
   }
 }
+
 export class Mkb10DataFilters implements IFiltersData {
   /** Код */
   code: StringFilter;
   /** Полное наименование */
   fullname: StringFilter;
 
-  constructor() {
-    this.code = new StringFilter("code", "код");
-    this.fullname = new StringFilter("fullname", "полное наименование");
+  constructor(mkb10DataFilters?: Mkb10DataFilters) {
+    this.code = new StringFilter("code", "код", mkb10DataFilters?.code.value);
+    this.fullname = new StringFilter(
+      "fullname",
+      "полное наименование",
+      mkb10DataFilters?.fullname.value
+    );
   }
-
   reset() {
     this.code.reset();
     this.fullname.reset();

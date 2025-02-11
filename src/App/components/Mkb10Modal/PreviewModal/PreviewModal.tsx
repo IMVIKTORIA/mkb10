@@ -7,7 +7,8 @@ import Scripts from "../../../shared/utils/clientScripts";
 import RecursionList from "../../RecursionList/RecursionList";
 import icons from "../../../shared/icons";
 import InputButton from "../../../../UIKit/InputButton/InputButton";
-import { findItemById } from "../../../shared/utils/utils";
+import { findItemById, findItemByCode } from "../../../shared/utils/utils";
+import CustomText from "../../../../UIKit/CustomText/CustomText";
 
 /** Модальное окно */
 export default function PreviewModal() {
@@ -26,6 +27,9 @@ export default function PreviewModal() {
 
   const onClickCancel = async () => {
     await Scripts.handleCancelClick();
+    setSelectedItemsIds([]);
+    setDiseasesListValue("");
+    setCustomInputValue("");
   };
 
   const onClickSelect = async () => {
@@ -37,10 +41,12 @@ export default function PreviewModal() {
   }, [data]);
 
   //Поиск по фильтрам
-  const onClickSearch = () => {};
+  const onClickSearch = () => {
+    data.onClickSearch();
+  };
 
-  // Обновление значения в CustomInput
-  const handleSelectChange = (selectedIds: string[], codes: string[]) => {
+  // Обновление значения в CustomText
+  const handleSelectChange = (selectedIds, codes) => {
     const removedCodes = selectedItemsIds
       .filter((id) => !selectedIds.includes(id))
       .map((id) => findItemById(id, data.Mkb10)?.code)
@@ -50,16 +56,26 @@ export default function PreviewModal() {
 
     setDiseasesListValue((prevValue) => {
       const existingCodes = new Set(prevValue.split("; ").filter(Boolean));
-      const newCodes = codes.filter((code) => !existingCodes.has(code));
+      // Удаление кодов дочерних элементов
+      const removeChildCodes = (node) => {
+        node?.children?.forEach((child) => {
+          existingCodes.delete(child.code);
+          removeChildCodes(child);
+        });
+      };
+      // Обновление выбранных кодов
+      codes.forEach((code) => {
+        const node = findItemByCode(code, data.Mkb10);
+        removeChildCodes(node);
+        existingCodes.add(code);
+      });
 
-      const updatedValue = [
-        ...Array.from(existingCodes).filter(
-          (code) => !removedCodes.includes(code)
-        ),
-        ...newCodes,
-      ].join("; ");
-
-      return updatedValue;
+      removedCodes.forEach((code) => {
+        if (code !== undefined) {
+          existingCodes.delete(code);
+        }
+      });
+      return Array.from(existingCodes).join("; ");
     });
   };
 
@@ -70,7 +86,7 @@ export default function PreviewModal() {
       </div>
       <div
         className="mkb10-modal__content"
-        style={{ width: "600px", height: "600px" }}
+        style={{ width: "600px", height: "700px" }}
       >
         <CustomInput
           value={customInputValue}
@@ -81,11 +97,9 @@ export default function PreviewModal() {
             <InputButton svg={icons.Search} clickHandler={onClickSearch} />
           }
         />
-        <CustomInput
+        <CustomText
           value={diseasesListValue}
-          setValue={setDiseasesListValue}
-          name="diseasesList"
-          cursor="text"
+          onChange={(e) => setDiseasesListValue(e.target.value)}
           readOnly
         />
         <div className="mkb10-modal__disease">

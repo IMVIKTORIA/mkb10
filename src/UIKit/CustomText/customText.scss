@@ -1,0 +1,32 @@
+.custom-resize-text__wrapper {
+  color: black;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.42px;
+  border: 2px solid var(--medpult-field-border-color);
+  border-radius: 7px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  min-height: 40px;
+}
+
+.custom-resize-text__text {
+  width: 100%;
+  overflow: hidden;
+  resize: none;
+  min-height: 1lh;
+  line-height: 1.5;
+  padding-left: 6px;
+  user-select: text;
+  outline: none;
+  border: none;
+  font-style: normal;
+  font-weight: 400;
+  font-family: Inter;
+  font-size: 14px;
+}

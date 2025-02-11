@@ -27,29 +27,36 @@ export default function RecursionList(
   };
 
   // Получение всех дочерних id у элемента, включая вложенные
-  const getAllChildIds = (node) => {
-    if (!node || !node.children) {
-      return [];
-    }
-    return node.children.flatMap((child) => [
-      child.id,
-      ...getAllChildIds(child),
-    ]);
-  };
+  const getAllChildIds = (node) =>
+    node.children?.flatMap((child) => [child.id, ...getAllChildIds(child)]) ||
+    [];
 
   //Получение всех кодов выбранных элементов
   const getAllSelectedCodes = (selectedIds, jsonData) => {
-    const selectedCodes: string[] = [];
+    const selectedCodes: Set<string> = new Set();
     const traverse = (node) => {
       if (selectedIds.includes(node.id)) {
-        selectedCodes.push(node.code);
+        selectedCodes.add(node.code);
       }
-      if (node.children) {
+      if (node.children && node.children.length > 0) {
         node.children.forEach(traverse);
+
+        const allChildrenSelected = node.children.every((child) =>
+          selectedIds.includes(child.id)
+        );
+        // Если все дочерние элементы выбраны, добавляем код родителя и удаляем коды дочерних элементов
+        if (allChildrenSelected) {
+          selectedCodes.add(node.code);
+          node.children.forEach((child) => selectedCodes.delete(child.code));
+        } else {
+          // Если не все дочерние элементы выбраны, удаляем код родителя
+          selectedCodes.delete(node.code);
+        }
       }
     };
+
     traverse(jsonData);
-    return selectedCodes;
+    return Array.from(selectedCodes);
   };
 
   // Обработка клика при выборе элемента

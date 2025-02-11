@@ -110,6 +110,21 @@ export const findItemById = (
   return undefined;
 };
 
+export const findItemByCode = (code, node) => {
+  if (node.code === code) {
+    return node;
+  }
+  if (node.children && node.children.length > 0) {
+    for (const child of node.children) {
+      const result = findItemByCode(code, child);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
+};
+
 export default {
   redirectSPA,
   setRequest,
