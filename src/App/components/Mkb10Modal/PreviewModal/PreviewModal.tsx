@@ -9,20 +9,25 @@ import icons from "../../../shared/icons";
 import InputButton from "../../../../UIKit/InputButton/InputButton";
 import { findItemById, findItemByCode } from "../../../shared/utils/utils";
 import CustomText from "../../../../UIKit/CustomText/CustomText";
+import Loader from "../../../../UIKit/Loader/Loader";
 
 /** Модальное окно */
 export default function PreviewModal() {
   const { data, setValue } = mkb10Context.useContext();
-  const [isFileLoading, setIsFileLoading] = useState<boolean>(false);
   const [customInputValue, setCustomInputValue] = useState<string>("");
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
   const [diseasesListValue, setDiseasesListValue] = useState<string>("");
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
   // Инициализация
   React.useLayoutEffect(() => {
-    Scripts.getDiseaseList().then((list) => {
-      setValue("Mkb10", list);
-    });
+    Scripts.getDiseaseList()
+      .then((list) => {
+        setValue("Mkb10", list);
+      })
+      .finally(() => {
+        setIsInitializing(false);
+      });
   }, []);
 
   const onClickCancel = async () => {
@@ -81,49 +86,57 @@ export default function PreviewModal() {
 
   return (
     <div className="mkb10-modal">
-      <div className="mkb10-modal__header">
-        <span className="mkb10-modal__label">Выберите болезнь</span>
-      </div>
-      <div
-        className="mkb10-modal__content"
-        style={{ width: "600px", height: "700px" }}
-      >
-        <CustomInput
-          value={customInputValue}
-          setValue={setCustomInputValue}
-          name="diseases"
-          cursor="text"
-          buttons={
-            <InputButton svg={icons.Search} clickHandler={onClickSearch} />
-          }
-        />
-        <CustomText
-          value={diseasesListValue}
-          onChange={(e) => setDiseasesListValue(e.target.value)}
-          readOnly
-        />
-        <div className="mkb10-modal__disease">
-          {data && (
-            <RecursionList
-              jsonData={data.Mkb10}
-              selectedItemsIds={selectedItemsIds}
-              setSelectedItemsIds={setSelectedItemsIds}
-              onSelect={handleSelectChange}
+      {isInitializing ? (
+        <div className="mkb10-modal__loader">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className="mkb10-modal__header">
+            <span className="mkb10-modal__label">Выберите болезнь</span>
+          </div>
+          <div
+            className="mkb10-modal__content"
+            style={{ width: "600px", height: "700px" }}
+          >
+            <CustomInput
+              value={customInputValue}
+              setValue={setCustomInputValue}
+              name="diseases"
+              cursor="text"
+              buttons={
+                <InputButton svg={icons.Search} clickHandler={onClickSearch} />
+              }
             />
-          )}
-        </div>
-        {/* Кнопки */}
-        <div className="mkb10-modal__buttons">
-          <Button
-            title={"Отменить"}
-            buttonType={ButtonType.outline}
-            clickHandler={onClickCancel}
-          />
-          {!isFileLoading && selectedItemsIds.length > 0 && (
-            <Button title={"Выбрать"} clickHandler={onClickSelect} />
-          )}
-        </div>
-      </div>
+            <CustomText
+              value={diseasesListValue}
+              onChange={(e) => setDiseasesListValue(e.target.value)}
+              readOnly
+            />
+            <div className="mkb10-modal__disease">
+              {data && (
+                <RecursionList
+                  jsonData={data.Mkb10}
+                  selectedItemsIds={selectedItemsIds}
+                  setSelectedItemsIds={setSelectedItemsIds}
+                  onSelect={handleSelectChange}
+                />
+              )}
+            </div>
+            {/* Кнопки */}
+            <div className="mkb10-modal__buttons">
+              <Button
+                title={"Отменить"}
+                buttonType={ButtonType.outline}
+                clickHandler={onClickCancel}
+              />
+              {selectedItemsIds.length > 0 && (
+                <Button title={"Выбрать"} clickHandler={onClickSelect} />
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
