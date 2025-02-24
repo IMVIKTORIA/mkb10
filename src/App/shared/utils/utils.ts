@@ -95,34 +95,47 @@ export const copy = (text: string) => {
   }
 };
 
-//
-export const findItemById = (
-  id: string,
-  data: JsonDataType
-): JsonDataType | undefined => {
-  if (data.id === id) return data;
-  if (data.children) {
-    for (const child of data.children) {
-      const found = findItemById(id, child);
-      if (found) return found;
-    }
+/** Поиск элемента списка в одной ноде по id */
+const findItemByIdSingle = (id: string, node: JsonDataType): JsonDataType | undefined => {
+  if (node.id === id) return node;
+  if (!node.children) return
+
+  for (const child of node.children) {
+    const findNode = findItemByIdSingle(id, child);
+    if (findNode) return findNode;
   }
-  return undefined;
+}
+
+/** Поиск элемента списка в массиве нод по id */
+export const findItemById = (id: string, nodes: JsonDataType[]): JsonDataType | undefined => {
+  for(const node of nodes) {
+    const findNode = findItemByIdSingle(id, node);
+    if(findNode) return findNode;
+  }
 };
 
-export const findItemByCode = (code, node) => {
+/** Поиск элемента списка в одной ноде по коду  */
+const findItemByCodeSingle = (code: string, node: JsonDataType): JsonDataType | undefined => {
   if (node.code === code) {
     return node;
   }
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      const result = findItemByCode(code, child);
-      if (result) {
-        return result;
-      }
+  
+  if (!node.children?.length) return;
+  
+  for (const child of node.children) {
+    const result = findItemByCodeSingle(code, child);
+    if (result) {
+      return result;
     }
   }
-  return null;
+}
+
+/** Поиск элемента списка в массиве нод по коду */
+export const findItemByCode = (code: string, nodes: JsonDataType[]): JsonDataType | undefined => {
+  for(const node of nodes) {
+    const findNode = findItemByCodeSingle(code, node);
+    if(findNode) return findNode;
+  }
 };
 
 export default {

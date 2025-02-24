@@ -10,6 +10,7 @@ import InputButton from "../../../../UIKit/InputButton/InputButton";
 import { findItemById, findItemByCode } from "../../../shared/utils/utils";
 import CustomText from "../../../../UIKit/CustomText/CustomText";
 import Loader from "../../../../UIKit/Loader/Loader";
+import { JsonDataType } from "../../../shared/types";
 
 /** Модальное окно */
 export default function PreviewModal() {
@@ -66,7 +67,7 @@ export default function PreviewModal() {
   };
 
   // Обновление значения в CustomText
-  const handleSelectChange = (selectedIds, codes) => {
+  const handleSelectChange = (selectedIds: string[], codes: string[]) => {
     const removedCodes = selectedItemsIds
       .filter((id) => !selectedIds.includes(id))
       .map((id) => findItemById(id, data.Mkb10)?.code)
@@ -76,19 +77,24 @@ export default function PreviewModal() {
 
     setDiseasesListValue((prevValue) => {
       const existingCodes = new Set(prevValue.split("; ").filter(Boolean));
-      // Удаление кодов дочерних элементов
-      const removeChildCodes = (node) => {
-        node?.children?.forEach((child) => {
+
+      /** Удаление кодов дочерних элементов */
+      const removeChildCodes = (node: JsonDataType) => {
+        if(!node?.children) return;
+
+        for(const child of node.children) {
+          if(!child.code) continue;
+
           existingCodes.delete(child.code);
           removeChildCodes(child);
-        });
+        }
       };
-      // Обновление выбранных кодов
-      codes.forEach((code) => {
+
+      for(const code of codes) {
         const node = findItemByCode(code, data.Mkb10);
-        removeChildCodes(node);
+        if(node) removeChildCodes(node);
         existingCodes.add(code);
-      });
+      }
 
       removedCodes.forEach((code) => {
         if (code !== undefined) {
@@ -129,14 +135,15 @@ export default function PreviewModal() {
               readOnly
             />
             <div className="mkb10-modal__disease">
-              {data && (
-                <RecursionList
-                  jsonData={data.Mkb10}
-                  selectedItemsIds={selectedItemsIds}
-                  setSelectedItemsIds={setSelectedItemsIds}
-                  onSelect={handleSelectChange}
-                />
-              )}
+              {data &&
+                data.Mkb10.map((node) => (
+                  <RecursionList
+                    jsonData={node}
+                    selectedItemsIds={selectedItemsIds}
+                    setSelectedItemsIds={setSelectedItemsIds}
+                    onSelect={handleSelectChange}
+                  />
+                ))}
             </div>
             {/* Кнопки */}
             <div className="mkb10-modal__buttons">

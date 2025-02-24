@@ -25,14 +25,17 @@ export default function RecursionList(
   };
 
   // Получение всех дочерних id у элемента, включая вложенные
-  const getAllChildIds = (node) =>
+  const getAllChildIds = (node: JsonDataType): string[] =>
     node.children?.flatMap((child) => [child.id, ...getAllChildIds(child)]) ||
     [];
 
   // Получение всех кодов выбранных элементов
   const getAllSelectedCodes = (selectedIds: string[], jsonData: JsonDataType) => {
     const selectedCodes: Set<string> = new Set();
-    const traverse = (node) => {
+    
+    const traverse = (node: JsonDataType) => {
+      if(!node.code) return;
+      
       if (selectedIds.includes(node.id)) {
         selectedCodes.add(node.code);
       }
@@ -42,10 +45,16 @@ export default function RecursionList(
         const allChildrenSelected = node.children.every((child) =>
           selectedIds.includes(child.id)
         );
+        
         // Если все дочерние элементы выбраны, добавляем код родителя и удаляем коды дочерних элементов
         if (allChildrenSelected) {
           selectedCodes.add(node.code);
-          node.children.forEach((child) => selectedCodes.delete(child.code));
+
+          for(const child of node.children) {
+            if(!child.code) continue;
+
+            selectedCodes.delete(child.code)
+          }
         } else {
           // Если не все дочерние элементы выбраны, удаляем код родителя
           selectedCodes.delete(node.code);
@@ -58,7 +67,7 @@ export default function RecursionList(
   };
 
   // Обработка клика при выборе элемента
-  const handleSelectorClick = (id) => {
+  const handleSelectorClick = (id: string) => {
     const allChildIds = getAllChildIds(jsonData);
     const parentSelected = selectedItemsIds.includes(id);
     let updatedSelectedItemsIds;
@@ -81,6 +90,7 @@ export default function RecursionList(
       updatedSelectedItemsIds,
       jsonData
     );
+
     if (onSelect) {
       onSelect(updatedSelectedItemsIds, selectedCodes);
     }
