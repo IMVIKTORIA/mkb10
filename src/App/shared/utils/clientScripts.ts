@@ -19,13 +19,19 @@ async function appendSetMkbDataCallback(callback: SetMkbDataCallback) {
 }
 
 /** Обработчик нажатия на кнопку отмена */
-async function handleCancelClick() {
+async function handleCancelMkbClick() {
   // TODO
 }
 
 /** Обработчик нажатия на кнопку выбрать */
-async function handleSelectClick() {
+async function handleSelectClick(diseasesListValue: string) {
   // TODO
+}
+
+/** Обработчик закрытия модального окна */
+async function closeMkbModal() {
+  // Получить обеотку окна
+  // Сделать display: none
 }
 
 /** Получение списка болезней */
@@ -128,7 +134,8 @@ async function getDiseaseList(): Promise<Mkb10Data> {
 
 export default {
   appendSetMkbDataCallback,
-  handleCancelClick,
+  handleCancelMkbClick,
   handleSelectClick,
   getDiseaseList,
+  closeMkbModal,
 };

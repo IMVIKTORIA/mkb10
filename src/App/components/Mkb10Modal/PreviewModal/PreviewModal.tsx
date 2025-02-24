@@ -30,15 +30,30 @@ export default function PreviewModal() {
       });
   }, []);
 
-  const onClickCancel = async () => {
-    await Scripts.handleCancelClick();
+  /** Закрыть модальное окно */
+  const closeModal = async () => {
+    // Сброс модалки
     setSelectedItemsIds([]);
     setDiseasesListValue("");
     setCustomInputValue("");
-  };
+    
+    // Закрыть модалку
+    await Scripts.closeMkbModal();
+  }
 
+  const onClickCancel = async () => {
+    // await Scripts.handleCancelClick();
+
+    // Закрыть модалку
+    await closeModal();
+  };
+  
   const onClickSelect = async () => {
-    await Scripts.handleSelectClick();
+    // Вставить значение в поле ввода
+    await Scripts.handleSelectClick(diseasesListValue);
+    
+    // Закрыть модалку
+    await closeModal();
   };
 
   useEffect(() => {

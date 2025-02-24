@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { RecursionListProps, JsonDataType } from "../../shared/types";
-import DiseaseList from "../DiseaseList/DiseaseList";
+import DiseaseListItem from "../DiseaseListItem/DiseaseListitem";
 import icons from "../../shared/icons";
 import CustomListSelector from "../../../UIKit/CustomList/CustomListSelector/CustomListSelector";
 
+/** Иерархический список заболеваний */
 export default function RecursionList(
-  props: RecursionListProps & {
-    depth?: number;
-    onSelect?: (selectedIds: string[], codes: string[]) => void;
-  }
+  props: RecursionListProps
 ) {
   const {
     jsonData,
@@ -31,8 +29,8 @@ export default function RecursionList(
     node.children?.flatMap((child) => [child.id, ...getAllChildIds(child)]) ||
     [];
 
-  //Получение всех кодов выбранных элементов
-  const getAllSelectedCodes = (selectedIds, jsonData) => {
+  // Получение всех кодов выбранных элементов
+  const getAllSelectedCodes = (selectedIds: string[], jsonData: JsonDataType) => {
     const selectedCodes: Set<string> = new Set();
     const traverse = (node) => {
       if (selectedIds.includes(node.id)) {
@@ -146,7 +144,7 @@ export default function RecursionList(
             isMultiple={true}
           />
         </div>
-        <DiseaseList
+        <DiseaseListItem
           code={jsonData.code}
           name={jsonData.fullname}
           comment={jsonData.comment}
@@ -166,7 +164,7 @@ export default function RecursionList(
                 depth={depth + 1}
                 onSelect={onSelect}
               />
-            )) // child - это структура jsonData
+            ))
         }
       </div>
     </div>
