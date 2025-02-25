@@ -96,47 +96,103 @@ export const copy = (text: string) => {
 };
 
 /** Поиск элемента списка в одной ноде по id */
-const findItemByIdSingle = (id: string, node: JsonDataType): JsonDataType | undefined => {
+const findItemByIdSingle = (
+  id: string,
+  node: JsonDataType
+): JsonDataType | undefined => {
   if (node.id === id) return node;
-  if (!node.children) return
+  if (!node.children) return;
 
   for (const child of node.children) {
     const findNode = findItemByIdSingle(id, child);
     if (findNode) return findNode;
   }
-}
+};
 
 /** Поиск элемента списка в массиве нод по id */
-export const findItemById = (id: string, nodes: JsonDataType[]): JsonDataType | undefined => {
-  for(const node of nodes) {
+export const findItemById = (
+  id: string,
+  nodes: JsonDataType[]
+): JsonDataType | undefined => {
+  for (const node of nodes) {
     const findNode = findItemByIdSingle(id, node);
-    if(findNode) return findNode;
+    if (findNode) return findNode;
   }
 };
 
 /** Поиск элемента списка в одной ноде по коду  */
-const findItemByCodeSingle = (code: string, node: JsonDataType): JsonDataType | undefined => {
+const findItemByCodeSingle = (
+  code: string,
+  node: JsonDataType
+): JsonDataType | undefined => {
   if (node.code === code) {
     return node;
   }
-  
+
   if (!node.children?.length) return;
-  
+
   for (const child of node.children) {
     const result = findItemByCodeSingle(code, child);
     if (result) {
       return result;
     }
   }
-}
+};
 
 /** Поиск элемента списка в массиве нод по коду */
-export const findItemByCode = (code: string, nodes: JsonDataType[]): JsonDataType | undefined => {
-  for(const node of nodes) {
+export const findItemByCode = (
+  code: string,
+  nodes: JsonDataType[]
+): JsonDataType | undefined => {
+  for (const node of nodes) {
     const findNode = findItemByCodeSingle(code, node);
-    if(findNode) return findNode;
+    if (findNode) return findNode;
   }
 };
+
+/** Получение всех кодов выбранных элементов */
+export const getAllSelectedCodes = (
+  selectedIds: string[],
+  jsonData: JsonDataType
+) => {
+  const selectedCodes: Set<string> = new Set();
+
+  const traverse = (node: JsonDataType) => {
+    if (!node.code) return;
+
+    if (selectedIds.includes(node.id)) {
+      selectedCodes.add(node.code);
+    }
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(traverse);
+
+      const allChildrenSelected = node.children.every((child) =>
+        selectedIds.includes(child.id)
+      );
+
+      // Если все дочерние элементы выбраны, добавляем код родителя и удаляем коды дочерних элементов
+      if (allChildrenSelected) {
+        selectedCodes.add(node.code);
+
+        for (const child of node.children) {
+          if (!child.code) continue;
+
+          selectedCodes.delete(child.code);
+        }
+      } else {
+        // Если не все дочерние элементы выбраны, удаляем код родителя
+        selectedCodes.delete(node.code);
+      }
+    }
+  };
+
+  traverse(jsonData);
+  return Array.from(selectedCodes);
+};
+
+// Получение всех дочерних id у элемента, включая вложенные
+export const getAllChildIds = (node: JsonDataType): string[] =>
+  node.children?.flatMap((child) => [child.id, ...getAllChildIds(child)]) || [];
 
 export default {
   redirectSPA,
@@ -145,4 +201,6 @@ export default {
   saveState,
   copy,
   findItemById,
+  getAllSelectedCodes,
+  getAllChildIds,
 };

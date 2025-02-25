@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { mkb10Context, Mkb10Data } from "../../../stores/Mkb10Context";
+import { mkb10Context } from "../../../stores/Mkb10Context";
 import CustomInput from "../../../../UIKit/CustomInput/CustomInput";
 import Button from "../../../../UIKit/Button/Button";
 import { ButtonType } from "../../../../UIKit/Button/ButtonTypes";
 import Scripts from "../../../shared/utils/clientScripts";
-import RecursionList from "../../RecursionList/RecursionList";
 import icons from "../../../shared/icons";
 import InputButton from "../../../../UIKit/InputButton/InputButton";
 import { findItemById, findItemByCode } from "../../../shared/utils/utils";
 import CustomText from "../../../../UIKit/CustomText/CustomText";
 import Loader from "../../../../UIKit/Loader/Loader";
 import { JsonDataType } from "../../../shared/types";
+import MkbList from "./MkbList/MkbList";
 
 /** Модальное окно */
 export default function PreviewModal() {
   const { data, setValue } = mkb10Context.useContext();
-  const [customInputValue, setCustomInputValue] = useState<string>("");
+  // Поисковый запрос
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
   const [diseasesListValue, setDiseasesListValue] = useState<string>("");
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
@@ -36,7 +37,7 @@ export default function PreviewModal() {
     // Сброс модалки
     setSelectedItemsIds([]);
     setDiseasesListValue("");
-    setCustomInputValue("");
+    setSearchQuery("");
     
     // Закрыть модалку
     await Scripts.closeMkbModal();
@@ -104,7 +105,7 @@ export default function PreviewModal() {
       return Array.from(existingCodes).join("; ");
     });
   };
-
+  
   return (
     <div className="mkb10-modal">
       {isInitializing ? (
@@ -120,31 +121,28 @@ export default function PreviewModal() {
             className="mkb10-modal__content"
             style={{ width: "600px", height: "700px" }}
           >
+            {/* Поле поиска */}
             <CustomInput
-              value={customInputValue}
-              setValue={setCustomInputValue}
-              name="diseases"
+              value={searchQuery}
+              setValue={setSearchQuery}
               cursor="text"
               buttons={
                 <InputButton svg={icons.Search} clickHandler={onClickSearch} />
               }
             />
+            {/* Поле выбранных элементов */}
             <CustomText
               value={diseasesListValue}
               onChange={(e) => setDiseasesListValue(e.target.value)}
               readOnly
             />
-            <div className="mkb10-modal__disease">
-              {data &&
-                data.Mkb10.map((node) => (
-                  <RecursionList
-                    jsonData={node}
-                    selectedItemsIds={selectedItemsIds}
-                    setSelectedItemsIds={setSelectedItemsIds}
-                    onSelect={handleSelectChange}
-                  />
-                ))}
-            </div>
+            {/* Список */}
+            <MkbList
+              searchQuery={searchQuery} 
+              selectedItemsIds={selectedItemsIds} 
+              setSelectedItemsIds={setSelectedItemsIds} 
+              onSelect={handleSelectChange}
+            />
             {/* Кнопки */}
             <div className="mkb10-modal__buttons">
               <Button

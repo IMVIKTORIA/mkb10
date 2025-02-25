@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 
-/** Пропсы Элемента списка заболеваний */
-interface DiseaseListItemProps { 
+/** Пропсы Данных элемента списка заболеваний */
+interface DiseaseListDataProps { 
   code?: string,
   name?: string, 
   comment?: string, 
   isVisible: boolean 
 }
 
-/** Элемент списка заболеваний */
-const DiseaseListItem = ({ code, name, comment, isVisible }: DiseaseListItemProps) => {
+/** Данные элемента списка заболеваний */
+const DiseaseListData = ({ code, name, comment, isVisible }: DiseaseListDataProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const commentRef = useRef(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -50,4 +50,4 @@ const DiseaseListItem = ({ code, name, comment, isVisible }: DiseaseListItemProp
   );
 };
 
-export default DiseaseListItem;
+export default DiseaseListData;
