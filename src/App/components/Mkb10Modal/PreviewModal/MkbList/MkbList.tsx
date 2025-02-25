@@ -6,6 +6,7 @@ import { JsonDataType, RecursionListProps } from "../../../../shared/types";
 import {
   getAllChildIds,
   getAllSelectedCodes,
+  useDebounce,
 } from "../../../../shared/utils/utils";
 
 interface MkbListProps {
@@ -94,7 +95,7 @@ export default function MkbList({
     }
   };
 
-  useEffect(() => {
+  React.useLayoutEffect(() => {
     data.Mkb10.map(updateNodes);
   }, [selectedItemsIds, data.Mkb10]);
 

@@ -16,31 +16,58 @@ type SearchListProps = {
 /** Поисковый список */
 export default function SearchList({searchQuery, handleSelectorClick, selectedItemsIds}: SearchListProps) {
     const { data, setValue } = mkb10Context.useContext();
+    // Результат поиска 
+    const [searchData, setSearchData] = useState<JsonDataType[]>([]);
     
-    // Изменение поискового запроса
-    const searchQueryDebounced = useDebounce(searchQuery, 1000);
-    useEffect(() => {}, [searchQueryDebounced]);
-    const mockData = {
-        id: "12345678991",
-        parentID: "12345678961",
-        code: "G35.00",
-        shortname: "G35.00",
-        fullname: "Множественный склероз, неуточненный",
-        startDate: moment("23.08.2024", "DD.MM.YYYY").toDate(),
-        endDate: null,
-        status: "действует",
-        versionId: "",
-        comment: "Lorem ipsum dolor sit amet",
-    };
+    // Расплющить дерево
+    const flattenTree = (jsonData: JsonDataType) => {
+        let items = [jsonData];
+        
+        if(jsonData.children) {
+            for(const child of jsonData.children) {
+                items = [...items, ...flattenTree(child)]
+            }
+        }
+
+        return items;
+    }
+
+    // Поиск в справочнике МКБ-10
+    const searchItems = () => {
+        // Сделать из дерева массив
+        const items = data.Mkb10.flatMap(flattenTree);
+
+        // Поиск по searchQuery
+        return items.filter(item => {
+            return (
+                (item.code && item.code.indexOf(searchQuery) > -1) // Код
+                || (item.fullname && item.fullname.indexOf(searchQuery) > -1) // Название
+                || (item.comment && item.comment.indexOf(searchQuery) > -1) // Комментарий
+            )
+        })
+    }
+
+    useEffect(() => {
+        if(!searchQuery) {
+            setSearchData([])
+            return; 
+        }
+
+        setSearchData(searchItems())
+    }, [searchQuery]);
 
     return (
     <>
-        <DiseaseListRow
-            jsonData={mockData}
-            isShowArrow={false}
-            handleSelectorClick={handleSelectorClick}
-            selectedItemsIds={selectedItemsIds}
-        />
+        {searchData.map(jsonData =>
+            <div className="list-wrapper">
+                <DiseaseListRow
+                    jsonData={jsonData}
+                    isShowArrow={false}
+                    handleSelectorClick={handleSelectorClick}
+                    selectedItemsIds={selectedItemsIds}
+                />
+            </div>
+        )}
     </>
     );
 }
