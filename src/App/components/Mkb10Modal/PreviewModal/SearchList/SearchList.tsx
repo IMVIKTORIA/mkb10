@@ -5,6 +5,7 @@ import DiseaseListData from "../../../DiseaseListData/DiseaseListData";
 import DiseaseListRow from "../../../DiseaseListRow/DiseaseListRow";
 import moment from "moment";
 import { JsonDataType } from "../../../../shared/types";
+import { searchMkbItems } from "../../../../shared/utils/utils";
 
 type SearchListProps = {
     /** Поисковый запрос */
@@ -18,34 +19,6 @@ export default function SearchList({searchQuery, handleSelectorClick, selectedIt
     const { data, setValue } = mkb10Context.useContext();
     // Результат поиска 
     const [searchData, setSearchData] = useState<JsonDataType[]>([]);
-    
-    // Расплющить дерево
-    const flattenTree = (jsonData: JsonDataType) => {
-        let items = [jsonData];
-        
-        if(jsonData.children) {
-            for(const child of jsonData.children) {
-                items = [...items, ...flattenTree(child)]
-            }
-        }
-
-        return items;
-    }
-
-    // Поиск в справочнике МКБ-10
-    const searchItems = () => {
-        // Сделать из дерева массив
-        const items = data.Mkb10.flatMap(flattenTree);
-
-        // Поиск по searchQuery
-        return items.filter(item => {
-            return (
-                (item.code && item.code.indexOf(searchQuery) > -1) // Код
-                || (item.fullname && item.fullname.indexOf(searchQuery) > -1) // Название
-                || (item.comment && item.comment.indexOf(searchQuery) > -1) // Комментарий
-            )
-        })
-    }
 
     useEffect(() => {
         if(!searchQuery) {
@@ -53,7 +26,7 @@ export default function SearchList({searchQuery, handleSelectorClick, selectedIt
             return; 
         }
 
-        setSearchData(searchItems())
+        setSearchData(searchMkbItems(searchQuery, data.Mkb10))
     }, [searchQuery]);
 
     return (

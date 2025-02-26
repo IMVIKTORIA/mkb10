@@ -6,11 +6,13 @@ import { ButtonType } from "../../../../UIKit/Button/ButtonTypes";
 import Scripts from "../../../shared/utils/clientScripts";
 import icons from "../../../shared/icons";
 import InputButton from "../../../../UIKit/InputButton/InputButton";
-import { findItemById, findItemByCode } from "../../../shared/utils/utils";
+import { findItemById, findItemByCode, flattenTree, removeChildNodes } from "../../../shared/utils/utils";
 import CustomText from "../../../../UIKit/CustomText/CustomText";
 import Loader from "../../../../UIKit/Loader/Loader";
 import { JsonDataType } from "../../../shared/types";
 import MkbList from "./MkbList/MkbList";
+import MkbSelectedElement from "./MkbSelectedList/MkbSelectedElement/MkbSelectedElement";
+import MkbSelectedList from "./MkbSelectedList/MkbSelectedList";
 
 /** Модальное окно */
 export default function PreviewModal() {
@@ -74,36 +76,15 @@ export default function PreviewModal() {
       .map((id) => findItemById(id, data.Mkb10)?.code)
       .filter(Boolean);
 
+    const ids = data.Mkb10.flatMap(node => removeChildNodes(selectedIds, node))
+    const listValue = ids
+      .map(id => findItemById(id, data.Mkb10)) // Получение нод по отфильтрованным id
+      .map(node => node?.code) // Получение кода
+      .filter(code => code) // Фильтр от undefined
+      .join("; ");
+
     setSelectedItemsIds(selectedIds);
-
-    setDiseasesListValue((prevValue) => {
-      const existingCodes = new Set(prevValue.split("; ").filter(Boolean));
-
-      /** Удаление кодов дочерних элементов */
-      const removeChildCodes = (node: JsonDataType) => {
-        if(!node?.children) return;
-
-        for(const child of node.children) {
-          if(!child.code) continue;
-
-          existingCodes.delete(child.code);
-          removeChildCodes(child);
-        }
-      };
-
-      for(const code of codes) {
-        const node = findItemByCode(code, data.Mkb10);
-        if(node) removeChildCodes(node);
-        existingCodes.add(code);
-      }
-
-      removedCodes.forEach((code) => {
-        if (code !== undefined) {
-          existingCodes.delete(code);
-        }
-      });
-      return Array.from(existingCodes).join("; ");
-    });
+    setDiseasesListValue(listValue);
   };
   
   return (
@@ -136,6 +117,7 @@ export default function PreviewModal() {
               onChange={(e) => setDiseasesListValue(e.target.value)}
               readOnly
             />
+            <MkbSelectedList selectedItemsIds={selectedItemsIds} setSelectedItemsIds={setSelectedItemsIds} onSelect={handleSelectChange}/>
             {/* Список */}
             <MkbList
               searchQuery={searchQuery} 

@@ -194,6 +194,56 @@ export const getAllSelectedCodes = (
 export const getAllChildIds = (node: JsonDataType): string[] =>
   node.children?.flatMap((child) => [child.id, ...getAllChildIds(child)]) || [];
 
+// Расплющить дерево
+export const flattenTree = (jsonData: JsonDataType) => {
+  let items = [jsonData];
+
+  if (jsonData.children) {
+    for (const child of jsonData.children) {
+      items = [...items, ...flattenTree(child)];
+    }
+  }
+
+  return items;
+};
+
+// Поиск в справочнике МКБ-10
+export const searchMkbItems = (searchQuery: string, nodes: JsonDataType[]) => {
+  // Сделать из дерева массив
+  const items = nodes.flatMap(flattenTree);
+
+  // Поиск по searchQuery
+  return items.filter((item) => {
+    return (
+      (item.code && item.code.indexOf(searchQuery) > -1) || // Код
+      (item.fullname && item.fullname.indexOf(searchQuery) > -1) || // Название
+      (item.comment && item.comment.indexOf(searchQuery) > -1) // Комментарий
+    );
+  });
+};
+
+export const removeChildNodes = (selectedIds: string[], node: JsonDataType) => {
+  // Плоское дерево
+  const flatTree = flattenTree(node);
+  // Отфильтровать дерево по выбранным нодам
+  const filteredFlatTree = flatTree.filter((node) =>
+    selectedIds.find((sid) => sid === node.id)
+  );
+  // Отфильтровать id по родительским нодам
+  let filteredIds = selectedIds.filter((sid) => {
+    // Поиск текущей ноды
+    const flatTreeNode = filteredFlatTree.find((node) => node.id === sid);
+    // Поиск родительской ноды
+    const hasParent = filteredFlatTree.find(
+      (node) => node.id === flatTreeNode?.parentID
+    );
+
+    return flatTreeNode && !hasParent;
+  });
+
+  return filteredIds;
+};
+
 export default {
   redirectSPA,
   setRequest,
