@@ -1,26 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { mkb10Context, Mkb10Data } from "../../../stores/Mkb10Context";
+import { mkb10Context } from "../../../stores/Mkb10Context";
 import CustomInput from "../../../../UIKit/CustomInput/CustomInput";
 import Button from "../../../../UIKit/Button/Button";
 import { ButtonType } from "../../../../UIKit/Button/ButtonTypes";
 import Scripts from "../../../shared/utils/clientScripts";
-import RecursionList from "../../RecursionList/RecursionList";
 import icons from "../../../shared/icons";
 import InputButton from "../../../../UIKit/InputButton/InputButton";
-import { findItemById, findItemByCode } from "../../../shared/utils/utils";
+import { findItemById, findItemByCode, flattenTree, removeChildNodes, getAllChildIds } from "../../../shared/utils/utils";
 import CustomText from "../../../../UIKit/CustomText/CustomText";
 import Loader from "../../../../UIKit/Loader/Loader";
+import { JsonDataType } from "../../../shared/types";
+import MkbList from "./MkbList/MkbList";
+import MkbSelectedElement from "./MkbSelectedList/MkbSelectedElement/MkbSelectedElement";
+import MkbSelectedList from "./MkbSelectedList/MkbSelectedList";
 
 /** Модальное окно */
 export default function PreviewModal() {
   const { data, setValue } = mkb10Context.useContext();
-  const [customInputValue, setCustomInputValue] = useState<string>("");
+  // Поисковый запрос
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
   const [diseasesListValue, setDiseasesListValue] = useState<string>("");
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
+  /** Обновить значения по строке с разделителем ";" */
+  const updateValueByString = (codes: string) => {
+    const codesSplit = codes.split(";");
+
+    const ids = codesSplit
+      .map((code) => code.trim())
+      .map((code) => findItemByCode(code, data.Mkb10))
+      .filter((item) => Boolean(item))
+      .flatMap(item => [...getAllChildIds(item!), item!.id])
+
+    console.log(ids)
+    setDiseasesListValue(codes);
+    setSelectedItemsIds(ids);
+  };
+
+  React.useLayoutEffect(() => {
+    if(!data.Mkb10.length) return;
+    Scripts.appendChangeSelectedMkbCallback(updateValueByString);
+  }, [data.Mkb10])
+
   // Инициализация
   React.useLayoutEffect(() => {
+
     Scripts.getDiseaseList()
       .then((list) => {
         setValue("Mkb10", list);
@@ -30,15 +55,30 @@ export default function PreviewModal() {
       });
   }, []);
 
-  const onClickCancel = async () => {
-    await Scripts.handleCancelClick();
+  /** Закрыть модальное окно */
+  const closeModal = async () => {
+    // Сброс модалки
     setSelectedItemsIds([]);
     setDiseasesListValue("");
-    setCustomInputValue("");
+    setSearchQuery("");
+
+    // Закрыть модалку
+    await Scripts.closeMkbModal();
+  };
+
+  const onClickCancel = async () => {
+    // await Scripts.handleCancelClick();
+
+    // Закрыть модалку
+    await closeModal();
   };
 
   const onClickSelect = async () => {
-    await Scripts.handleSelectClick();
+    // Вставить значение в поле ввода
+    await Scripts.handleSelectClick(diseasesListValue);
+
+    // Закрыть модалку
+    await closeModal();
   };
 
   useEffect(() => {
@@ -51,37 +91,23 @@ export default function PreviewModal() {
   };
 
   // Обновление значения в CustomText
-  const handleSelectChange = (selectedIds, codes) => {
+  const handleSelectChange = (selectedIds: string[], codes: string[]) => {
     const removedCodes = selectedItemsIds
       .filter((id) => !selectedIds.includes(id))
       .map((id) => findItemById(id, data.Mkb10)?.code)
       .filter(Boolean);
 
+    const ids = data.Mkb10.flatMap((node) =>
+      removeChildNodes(selectedIds, node)
+    );
+    const listValue = ids
+      .map((id) => findItemById(id, data.Mkb10)) // Получение нод по отфильтрованным id
+      .map((node) => node?.code) // Получение кода
+      .filter((code) => code) // Фильтр от undefined
+      .join("; ");
+
     setSelectedItemsIds(selectedIds);
-
-    setDiseasesListValue((prevValue) => {
-      const existingCodes = new Set(prevValue.split("; ").filter(Boolean));
-      // Удаление кодов дочерних элементов
-      const removeChildCodes = (node) => {
-        node?.children?.forEach((child) => {
-          existingCodes.delete(child.code);
-          removeChildCodes(child);
-        });
-      };
-      // Обновление выбранных кодов
-      codes.forEach((code) => {
-        const node = findItemByCode(code, data.Mkb10);
-        removeChildCodes(node);
-        existingCodes.add(code);
-      });
-
-      removedCodes.forEach((code) => {
-        if (code !== undefined) {
-          existingCodes.delete(code);
-        }
-      });
-      return Array.from(existingCodes).join("; ");
-    });
+    setDiseasesListValue(listValue);
   };
 
   return (
@@ -99,30 +125,33 @@ export default function PreviewModal() {
             className="mkb10-modal__content"
             style={{ width: "600px", height: "700px" }}
           >
+            {/* Поле поиска */}
             <CustomInput
-              value={customInputValue}
-              setValue={setCustomInputValue}
-              name="diseases"
+              value={searchQuery}
+              setValue={setSearchQuery}
               cursor="text"
               buttons={
                 <InputButton svg={icons.Search} clickHandler={onClickSearch} />
               }
             />
-            <CustomText
+            {/* Поле выбранных элементов */}
+            {/* <CustomText
               value={diseasesListValue}
               onChange={(e) => setDiseasesListValue(e.target.value)}
               readOnly
+            /> */}
+            <MkbSelectedList
+              selectedItemsIds={selectedItemsIds}
+              setSelectedItemsIds={setSelectedItemsIds}
+              onSelect={handleSelectChange}
             />
-            <div className="mkb10-modal__disease">
-              {data && (
-                <RecursionList
-                  jsonData={data.Mkb10}
-                  selectedItemsIds={selectedItemsIds}
-                  setSelectedItemsIds={setSelectedItemsIds}
-                  onSelect={handleSelectChange}
-                />
-              )}
-            </div>
+            {/* Список */}
+            <MkbList
+              searchQuery={searchQuery}
+              selectedItemsIds={selectedItemsIds}
+              setSelectedItemsIds={setSelectedItemsIds}
+              onSelect={handleSelectChange}
+            />
             {/* Кнопки */}
             <div className="mkb10-modal__buttons">
               <Button

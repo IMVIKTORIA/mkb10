@@ -33,4 +33,6 @@ export type RecursionListProps = {
   jsonData: JsonDataType;
   selectedItemsIds: string[];
   setSelectedItemsIds: React.Dispatch<React.SetStateAction<string[]>>;
+  depth?: number;
+  onSelect?: (selectedIds: string[], codes: string[]) => void;
 };

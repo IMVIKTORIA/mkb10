@@ -44,14 +44,14 @@ export class Mkb10Context {
   /** Фильтры поиска */
   filters: Mkb10DataFilters;
   /** Данные МКБ-10 */
-  Mkb10: Mkb10Data;
+  Mkb10: Mkb10Data[];
   /** Обработчик нажатия на кнопку поиск */
   onClickSearch: () => Promise<void>;
   selectedItemsIds: string[];
 
   constructor() {
     this.filters = new Mkb10DataFilters();
-    this.Mkb10 = new Mkb10Data();
+    this.Mkb10 = [];
     this.onClickSearch = async () => {
       console.log("onClickSearch");
     };
