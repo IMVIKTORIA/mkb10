@@ -1,15 +1,21 @@
 import React from 'react';
 import icons from '../../../../../shared/icons';
+import { getAllChildIds, getAllSelectedCodes } from '../../../../../shared/utils/utils';
+import { JsonDataType } from '../../../../../shared/types';
 
 interface MkbSelectedElementProps {
 	/** Значение элемента */
 	name: string,
 	/** Обработчик удаления элемента */
-	deleteHandler: () => void
+	deleteHandler: () => void,
+	selectedItemsIds: string[],
+	setSelectedItemsIds: React.Dispatch<React.SetStateAction<string[]>>,
+	onSelect?: (selectedIds: string[], codes: string[]) => void,
 }
 
 /** Список выбранных мкб */
-export default function MkbSelectedElement({ name, deleteHandler }: MkbSelectedElementProps) {
+export default function MkbSelectedElement({ name, deleteHandler, selectedItemsIds, onSelect, setSelectedItemsIds, }: MkbSelectedElementProps) {
+	
 	return (
 		<div className="mkb-selected-element">
 			<div className="mkb-selected-element__name">{name}</div>

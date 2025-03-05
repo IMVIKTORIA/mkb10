@@ -19,12 +19,12 @@ async function appendSetMkbDataCallback(callback: SetMkbDataCallback) {
   (window as any)["setMkbDataCallback"] = callback;
 }
 
-type ChangeSelectedMkbCallback = (data: string[]) => void;
+type ChangeSelectedMkbCallback = (data: string) => void;
 /** Функция обратного вызова заполнения данных модалки */
 let changeSelectedMkbCallback: ChangeSelectedMkbCallback | undefined;
-async function appendChangeSelectedMkbCallback(callback: ChangeSelectedMkbCallback) {
+function appendChangeSelectedMkbCallback(callback: ChangeSelectedMkbCallback) {
   changeSelectedMkbCallback = callback;
-  (window as any)["setMkbDataCallback"] = callback;
+  (window as any)["changeSelectedMkbCallback"] = callback;
 }
 
 /** Обработчик нажатия на кнопку отмена */
