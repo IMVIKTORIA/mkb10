@@ -25,6 +25,8 @@ export default function PreviewModal() {
 
   // Инициализация
   React.useLayoutEffect(() => {
+    Scripts.appendChangeSelectedMkbCallback(setSelectedItemsIds);
+
     Scripts.getDiseaseList()
       .then((list) => {
         setValue("Mkb10", list);

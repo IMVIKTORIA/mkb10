@@ -10,11 +10,20 @@ import { Mkb10Data } from "../../stores/Mkb10Context";
 function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
+
 type SetMkbDataCallback = (data: Mkb10Data) => void;
 /** Функция обратного вызова заполнения данных модалки */
 let setMkbDataCallback: SetMkbDataCallback | undefined;
 async function appendSetMkbDataCallback(callback: SetMkbDataCallback) {
   setMkbDataCallback = callback;
+  (window as any)["setMkbDataCallback"] = callback;
+}
+
+type ChangeSelectedMkbCallback = (data: string[]) => void;
+/** Функция обратного вызова заполнения данных модалки */
+let changeSelectedMkbCallback: ChangeSelectedMkbCallback | undefined;
+async function appendChangeSelectedMkbCallback(callback: ChangeSelectedMkbCallback) {
+  changeSelectedMkbCallback = callback;
   (window as any)["setMkbDataCallback"] = callback;
 }
 
@@ -232,4 +241,5 @@ export default {
   handleSelectClick,
   getDiseaseList,
   closeMkbModal,
+  appendChangeSelectedMkbCallback
 };
