@@ -46,7 +46,7 @@ export default function MkbSelectedList(props: MkbSelectedListProps) {
 	};
 
   return (
-    <div className="mkb-selected-list">
+    <div className="mkb-selected-list-modal">
       {data.Mkb10.flatMap(node => removeChildNodes(selectedItemsIds, node)).map(id => {
         const mkbItem = findItemById(id, data.Mkb10);
         return <MkbSelectedElement name={mkbItem?.code ?? ""} deleteHandler={() => {

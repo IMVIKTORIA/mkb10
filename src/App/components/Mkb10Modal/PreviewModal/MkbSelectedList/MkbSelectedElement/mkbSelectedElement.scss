@@ -7,9 +7,9 @@
 	max-width: 100%;
 	align-items: center;
 	height: 24px;
-	width: fit-content;
 
 	&__name {
+		width: 80px;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;

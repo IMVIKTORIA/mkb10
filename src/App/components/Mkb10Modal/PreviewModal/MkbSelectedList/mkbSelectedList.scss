@@ -1,5 +1,6 @@
-.mkb-selected-list {
+.mkb-selected-list-modal {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	overflow-y: auto;
 }

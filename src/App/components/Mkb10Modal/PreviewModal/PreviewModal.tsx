@@ -134,24 +134,21 @@ export default function PreviewModal() {
                 <InputButton svg={icons.Search} clickHandler={onClickSearch} />
               }
             />
-            {/* Поле выбранных элементов */}
-            {/* <CustomText
-              value={diseasesListValue}
-              onChange={(e) => setDiseasesListValue(e.target.value)}
-              readOnly
-            /> */}
-            <MkbSelectedList
-              selectedItemsIds={selectedItemsIds}
-              setSelectedItemsIds={setSelectedItemsIds}
-              onSelect={handleSelectChange}
-            />
-            {/* Список */}
-            <MkbList
-              searchQuery={searchQuery}
-              selectedItemsIds={selectedItemsIds}
-              setSelectedItemsIds={setSelectedItemsIds}
-              onSelect={handleSelectChange}
-            />
+            <div className="mkb10-modal__list">
+              {/* Список */}
+              <MkbList
+                searchQuery={searchQuery}
+                selectedItemsIds={selectedItemsIds}
+                setSelectedItemsIds={setSelectedItemsIds}
+                onSelect={handleSelectChange}
+              />
+              {/* Поле выбранных элементов */}
+              <MkbSelectedList
+                selectedItemsIds={selectedItemsIds}
+                setSelectedItemsIds={setSelectedItemsIds}
+                onSelect={handleSelectChange}
+              />
+            </div>
             {/* Кнопки */}
             <div className="mkb10-modal__buttons">
               <Button

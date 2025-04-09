@@ -209,18 +209,19 @@ export const flattenTree = (jsonData: JsonDataType) => {
 
 // Поиск в справочнике МКБ-10
 export const searchMkbItems = (searchQuery: string, nodes: JsonDataType[]) => {
-  // Сделать из дерева массив
-  const items = nodes.flatMap(flattenTree);
+	// Сделать из дерева массив
+	const items = nodes.flatMap(flattenTree)
+	const searchQueryProcessed = searchQuery.toLowerCase().trim().normalize()
 
-  // Поиск по searchQuery
-  return items.filter((item) => {
-    return (
-      (item.code && item.code.indexOf(searchQuery) > -1) || // Код
-      (item.fullname && item.fullname.indexOf(searchQuery) > -1) || // Название
-      (item.comment && item.comment.indexOf(searchQuery) > -1) // Комментарий
-    );
-  });
-};
+	// Поиск по searchQuery
+	return items.filter((item) => {
+		return (
+			(item.code && item.code.toLowerCase().trim().normalize().includes(searchQueryProcessed)) || // Код
+			(item.fullname && item.fullname.toLowerCase().trim().normalize().includes(searchQueryProcessed)) || // Название
+			(item.comment && item.comment.toLowerCase().trim().normalize().includes(searchQueryProcessed)) // Комментарий
+		)
+	})
+}
 
 export const removeChildNodes = (selectedIds: string[], node: JsonDataType) => {
   // Плоское дерево
