@@ -130,9 +130,7 @@ export default function PreviewModal() {
               value={searchQuery}
               setValue={setSearchQuery}
               cursor="text"
-              buttons={
-                <InputButton svg={icons.Search} clickHandler={onClickSearch} />
-              }
+              placeholder="Поиск МКБ"
             />
             <div className="mkb10-modal__list">
               {/* Список */}

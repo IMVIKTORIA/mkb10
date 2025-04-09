@@ -17,9 +17,9 @@ interface MkbSelectedElementProps {
 export default function MkbSelectedElement({ name, deleteHandler, selectedItemsIds, onSelect, setSelectedItemsIds, }: MkbSelectedElementProps) {
 	
 	return (
-		<div className="mkb-selected-element">
-			<div className="mkb-selected-element__name">{name}</div>
-			<div className="mkb-selected-element__close-button" onClick={() => deleteHandler()}>{icons.DeleteSearchItem}</div>
+		<div className="mkb-selected-element-modal">
+			<div className="mkb-selected-element-modal__name">{name}</div>
+			<div className="mkb-selected-element-modal__close-button" onClick={() => deleteHandler()}>{icons.DeleteSearchItem}</div>
 		</div>
 	)
 }
